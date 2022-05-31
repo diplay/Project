@@ -1,13 +1,12 @@
 source 'https://rubygems.org'
 
+gem 'execjs'
+gem 'rice', '3.0.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '5.0.1'
 
 # Use sqlite3 as the database for Active Record
-group :development, :test do
-  gem 'sqlite3'
-end
-
+gem 'sqlite3', '~> 1.3.0'
 # Use SCSS for stylesheets
 gem 'sass-rails'
 
@@ -66,9 +65,14 @@ gem 'ckeditor'
 gem 'slim'
 
 # Generator of test tasks
-gem 'tasks_generator', '= 1.4'
-
+gem "tasks_generator", :git => "https://github.com/grigandal625/task_generator_mephi.git"
 # Translit
 gem 'translit'
 
 gem 'watu_table_builder', :require => 'table_builder'
+
+gem "ruby-debug-ide", "~> 0.7.3"
+
+gem "debase", "~> 0.2.4"
+
+gem "solargraph", "~> 0.44.0"

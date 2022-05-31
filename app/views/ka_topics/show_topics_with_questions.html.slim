@@ -2,14 +2,13 @@ h2 = @root.text
 h3 Перечень тем с номерами активных вопросов
 table
   thead
-    th.id = "Идентификатор"
     th.text = "Название"
     th.questions = "Номера вопросов"
   tbody
     - @topics.each do |t|
       tr
-        td.id = t.id
-        td.text = t.text
+        td
+          a href="#{edit_ka_topic_path(t.id)}" #{t.text}
         - @arr = []
         - t.ka_question.each do |q|
           - if q.disable == 0

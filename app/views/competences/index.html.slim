@@ -28,6 +28,8 @@ h1 Компетенции
           td
             a href="#{edit_competence_path(c.id)}" Редактировать
           td
-           = link_to "Удалить", competence_path(c), method: :delete
+            form action="#{competence_path(c)}" method="POST"
+              input type="hidden" name="_method" value="DELETE"
+              button type="submit" class="alert button postfix" Удалить 
 - else
   p Пока не добавлено ни одной компетенции

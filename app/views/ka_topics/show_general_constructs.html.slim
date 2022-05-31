@@ -1,0 +1,19 @@
+h3 Конструкты
+/Временное допущение, должны выводиться только те конструкты, которые относятся к данному курсу
+table
+  thead
+    th.id = "Идентификатор"
+    th.text = "Название"
+    - Construct.all.each do |c|
+      th = c.name
+  tbody
+    - KaTopic.all.each do |t|
+      tr
+        td.id = t.id
+        td
+          a href="#{edit_ka_topic_path(t.id)}" = t.text
+        - Construct.all.each do |c|
+          - if t.topic_constructs.where(construct_id: c.id).empty?
+            td*{'title'=>c.name} = '-'
+          - else 
+            td*{'title'=>c.name} = t.topic_constructs.where(construct_id: c.id)[0].mark

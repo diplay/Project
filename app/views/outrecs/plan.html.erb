@@ -1,76 +1,35 @@
+<div style="background: black; color: silver; padding: 20px; position: fixed; width: 100%; left: 0px; top: 0px">
+  <span style=""><a style="color: silver;" href="/">На главную</a></span>
+</div>
 
-<head>
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta charset="utf-8">
-
-  <!--TODO: Что это?-->
-  <meta name="generator" content="Bootply" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <%= stylesheet_link_tag    "admin_tools", media: "all", "data-turbolinks-track" => true %>
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <%= yield(:head) %>
-
-
-  <%= csrf_meta_tags %>
-<script type="text/javascript" src="/jquery.js"></script>
-<link rel="stylesheet" type="text/css" href="/stylesheets/table.css">
-<script src="/calendar_kdg.js" type="text/javascript"></script>
-<script src="/jquery.tablesorter.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#result").tablesorter();
-        });
-    </script>
-<style type="text/css">
-   .block1 { 
-    float: left;
-   }
-</style> 
-</head>
-
-<span>ФИО:</span> <%= @student.fio %> <br/>
-<span>Группа:</span> <%= @student.group.number %> <br/>
-
-
-<table class="table table-hover" style="border: 1px;">
-<caption ><b>Обучающие воздействия</b></caption>
-
-<thead>
-<tr >
-    <th>Главы учебника, рекомендованные к прочтению</th>
-    <th>Время</th>
-    <th>Статус прохождения</th>
-</tr>
-</thead>
-<% if $plane.nil? %>
-<tr >
-   <td> Рекомендаций нет </td>
-</tr> 
-<% else %>
-<% $plane.each do |rec| 
-if rec["type_um"] == "test_utz_question"
-%>
- <tr >
-   <td><%= link_to rec["text"], test_utz_question_path(rec["rec_id"].to_i) %></td>
-   <td><%= rec["date"] %></td>
-   <td>
-	<%= form_tag(outrecs_done_path(rec["id"]) , method: "GET") do %>
-	<%= submit_tag("Пройдено") %>
-	<% end %>
-   </td>
- </tr>  
-<% else %>
- <tr >
-   <td><%= rec["text"] %></td>
-   <td><%= rec["date"] %></td>
-   <td>
-	<%= form_tag(outrecs_done_path(rec["id"]) , method: "GET") do %>
-	<%= submit_tag("Пройдено") %>
-	<% end %>
-   </td>
- </tr>    
-  <% end %>
- <% end %>
-<% end %>
-</table>
+<div style="top: 70px; position: relative">
+  <h2>Текущий план:</h2>
+  <table style="border-collapse: collapse">
+    <% if $plane.empty? %>
+      <tr><th>На текущий момент задач нет</th></tr>
+    <% else %>
+      <tr style="background: silver; text-align: left"><th style="padding: 10px">Задача</th><th style="padding: 10px">Действия</th></tr>
+      <% $plane.each do |rec| %>
+        <tr style="border-bottom: 1px solid silver">
+          <td style="padding: 10px">
+          <% if rec["type"] == "ht" %>
+            Глава ГТ-учебника "<%= rec["data"]["text"] %>"
+          <% elsif rec["type"] == "ett" %>
+            <% if rec["data"]["ett_type"] == "0" %>
+              <%= link_to rec["data"]["text"], test_utz_question_path(rec["data"]["ett_id"].to_i) %>
+            <% end %>
+          <% elsif rec["type"] == "cmp" %>
+            <%= link_to rec["data"]["text"], rec["data"]["link"] %>
+          <% end %>
+            
+          </td>
+          <td style="padding: 10px">
+            <%= form_tag(outrecs_done_path(rec["id"]), method: "get") do %>
+            <input type="submit" value="Выполнено">
+           <% end %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </table>
+</div>

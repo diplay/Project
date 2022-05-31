@@ -73,16 +73,22 @@ form method="post" action="#{components_attach_path}"
       div class="row collapse"
         input type="hidden" name="topic_id" value="#{@topic.id}"
 
-        div class="small-8 columns"
+        div class="small-12 columns"
           select name="component_id"
 			- @components.each do |c|
 			  option value="#{c.id}"
 			    = c.name
 
-        div class="small-2 columns"
-          input type="number" name="rel" placeholder="Тип связи"
-        div class="small-2 columns"
+        div class="small-4 columns"
+          select name="rel" placeholder="Тип связи" value="null"
+                option value=0 Сильная
+                option value=1 Средняя
+                option value=2 Слабая
+        div class="small-3 columns"
           input type="number" name="rad" placeholder="Область привязки"
+
+        div class="small-3 columns"
+          input type="number" name="weight" placeholder="Вес компонента"
 
         div class="small-2 columns"
           input type="submit" class="button postfix"
@@ -94,10 +100,12 @@ form method="post" action="#{edit_utz_path}"
   div class="row"
     div class="large-12 columns"
       div class="row collapse"
-        div class="small-10 columns"
-          select name="ka_topic_id"
+        div class="small-8 columns"
+          select name="utz_data"
             - @quizzes.each do |t|
               = content_tag(:option, t[:data].name, value: "#{t[:type]},#{t[:data].id}")
+        div class="small-2 columns"
+          input type="number" name="weight" min="0" max="100" placeholder="Вес УТЗ"
         div class="small-2 columns"
           input type="submit" class="button postfix"
 
@@ -130,7 +138,7 @@ table
         td.text = t.text
         td.difficulty = t.difficulty
         td
-          a href="#{show_ka_question_path(t.id)}" Редактировать
+          a target="_blank" href="#{show_ka_question_path(t.id)}" Редактировать
         td
           a href="#{ka_question_destroy_path(t.id)}" Удалить
 
@@ -140,69 +148,22 @@ table
   thead
     th.text = "Наименование"
     th.type = "Тип"
+    th.weight = "Вес"
     th colspan='2'
   tbody
-    - @topics_utz.each do |topic_utz|
-      - topic_utz.test_utz_questions.each do |u|
-        tr
-          td.text
-            = u.name
-          td.type = "Выбор вариантов ответа"
-          td
-            a href="#{test_utz_question_path(u.id)}"
-              | Перейти
-          td
-            = form_for u, url: {controller: 'test_utz_questions', action: 'detach'}, html: {method: 'patch'} do |f|
-              input type="hidden" name="q_id" value="#{u.id}"
-              = f.submit 'Удалить'
-      - topic_utz.matching_utzs.each do |u|
-        tr
-          td.text
-            = u.name
-          td.type = "Расстановка соответствий между блоками"
-          td
-            a href="#{matching_utz_path(u.id)}"
-              | Перейти
-          td
-            = form_for u, url: {controller: 'matching_utz', action: 'detach'}, html: {method: 'patch'} do |f|
-              input type="hidden" name="q_id" value="#{u.id}"
-              = f.submit 'Удалить'
-      - topic_utz.filling_utzs.each do |u|
-        tr
-          td.text
-            = u.name
-          td.type = "Заполнение пропусков в тексте"
-          td
-            a href="#{filling_utz_path(u.id)}"
-              | Перейти
-          td
-            = form_for u, url: {controller: 'filling_utz', action: 'detach'}, html: {method: 'patch'} do |f|
-              input type="hidden" name="q_id" value="#{u.id}"
-              = f.submit 'Удалить'
-      - topic_utz.text_correction_utzs.each do |u|
-        tr
-          td.text
-            = u.name
-          td.type = "Маркировки или корректировки текста"
-          td
-            a href="#{text_correction_utz_path(u.id)}"
-              | Перейти
-          td
-            = form_for u, url: {controller: 'text_correction_utz', action: 'detach'}, html: {method: 'patch'} do |f|
-              input type="hidden" name="q_id" value="#{u.id}"
-              = f.submit 'Удалить'
-      - topic_utz.images_sort_utzs.each do |u|
-        tr
-          td.text
-            = u.theme
-          td.type = "Упорядочивание графических изображений"
-          td
-            a href="#{images_sort_utz_path(u.id)}"
-              | Перейти
-          td
-            = form_for u, url: {controller: 'images_sort_utz', action: 'detach'}, html: {method: 'patch'} do |f|
-              input type="hidden" name="q_id" value="#{u.id}"
-              = f.submit 'Удалить'
+    - @topic_utz_set.each do |topic_utz|
+      tr
+        td.text = topic_utz[:data].test_utz_question.text
+        td.type = "Выбор вариантов ответа"
+        td.weight = topic_utz[:data].weight
+        td
+          a href="#{test_utz_question_path(topic_utz[:data].test_utz_question_id)}"
+            | Перейти
+        td
+          form action="#{delete_utz_topic_connection_path}" method="post"
+            input type="hidden" name="utz_data" value="#{topic_utz[:data].id},#{topic_utz[:type]}"
+            input type="submit" value="Удалить"
+      
 h3 Компетенции
 table
   thead
@@ -222,6 +183,7 @@ table
           a href="#{competence_detach_path(c.competence_id, @topic.id)}" Удалить
 
 h3 Конструкты
+a href="#{calc_rel_path(@topic.id)}" Рассчитать связи
 table
   thead
     tr
@@ -238,28 +200,49 @@ table
           a href="#{construct_detach_path(c.construct_id, @topic.id)}" Удалить
 
 h3 Компоненты выявления умений
+- if TopicComponent.where(ka_topic_id: @topic.id).count != 0
+  table
+    thead
+      tr
+        th.name = "Название"
+        th.weight = "Вес"
+    tbody
+      - TopicComponent.where(ka_topic_id: @topic.id).each do |c|
+        tr
+          td.name = link_to c.component.name, component_edit_view_path(c.component)
+          td.weight = c.weight
+          td
+            a href="#{component_detach_path(c.component_id, @topic.id)}" Удалить
+- else
+  p Пока ни один компонент не привязан
+
+
+h3 Построенные связи
 table
   thead
     tr
-      th.id = "Идентификатор"
-      th.name = "Название"
-      th.link = "Ссылка"
-  tbody
-    - TopicComponent.where(ka_topic_id: @topic.id).each do |c|
-      tr
-        td.id = c.component_id
-        td.name = c.component.name
-        td.link
-          - if c.component.name == "Компонент выявления умений обучаемых моделировать простейшие ситуации ПрО с помощью семантических сетей" 
-            = link_to 'Варианты', semantictests_path
-          - else
-            - if c.component.name == "Компонент выявления умений обучаемых моделировать простейшие ситуации ПрО с помощью фреймов"
-              = link_to 'Варианты', frameadmin_index_path
-            - else
-              - if c.component.name == "Компонент выявления умений обучаемых моделировать стратегии прямого/обратного вывода"
-                = link_to 'Варианты', adminpanel_path
-              - else
-                - if c.component.name == "Компонент выявления умений обучаемых строить компоненты лингвистической модели подъязыка деловой прозы"
-                  = link_to 'Варианты', tasks_path
+      th.name = "Связанная тема"
+      th.rel_type = "Тип связи"
+  tbody 
+    - TopicRelation.where(ka_topic_id: @topic.id).each do |r|
+      tr 
+        td 
+          a href="#{edit_ka_topic_path(r.related_topic.id)}" = r.related_topic.text
+        - if r.rel_type == 0
+          td = "Сильная"
+        - if r.rel_type == 1
+          td = "Средняя"
+        - if r.rel_type == 2
+          td = "Слабая"
+
+    - TopicRelation.where(related_topic_id: @topic.id).each do |r|
+      tr 
         td
-          a href="#{component_detach_path(c.component_id, @topic.id)}" Удалить
+          a href="#{edit_ka_topic_path(r.ka_topic.id)}" = r.ka_topic.text
+        - if r.rel_type == 0
+          td = "Сильная"
+        - if r.rel_type == 1
+          td = "Средняя"
+        - if r.rel_type == 2
+          td = "Слабая"
+

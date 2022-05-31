@@ -28,7 +28,7 @@
    
    				 <tr>
 					 <td><%= test.name %></td>
-					 <td><%= link_to  "Редактировать", semantictest_path(test, showmenu: false)%></td>
+					 <td><%= link_to  "Редактировать", semantictest_path(test)%></td>
                      <td>
                        <%if test.check%>
                             <input type="checkbox" id="<%= test.id%>" onClick="show_alert(<%= test.id%>)"  checked="">

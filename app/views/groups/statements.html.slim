@@ -1,0 +1,53 @@
+a href="#{group_path($g)}" Назад к просмотру группы
+button id="open_print" Версия для печати
+javascript: document.getElementById('open_print').onclick = function (){ let w = window.open(); w.document.body.innerHTML = document.getElementById('statement').outerHTML }
+table id="statement" style="border-collapse: collapse"
+  thead 
+    tr
+      th style="border: 1px solid black" ФИО
+      th style="border: 1px solid black" Группа
+      th style="border: 1px solid black" colspan="2" Проблемные зоны
+      - $all_tests.each do |t|
+        th style="border: 1px solid black" #{t["text"]}
+      th style="border: 1px solid black" Прямой вывод
+      th style="border: 1px solid black" Обратный вывод
+      th style="border: 1px solid black" Семантические сети
+      th style="border: 1px solid black" Фреймы
+  tbody 
+    - $students.each do |student|
+      
+      - if student["problem_areas"].count > 0
+        tr
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["fio"]}
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["group"]}
+          td style="border: 1px solid black" #{student["problem_areas"][0]["text"]}
+          td style="border: 1px solid black" #{student["problem_areas"][0]["mark"]}
+          - $all_tests.each do |t|
+            - if student["tests"].find {|st| st["test_id"] == t["test_id"]} != nil
+              td rowspan="#{student["problem_areas"].count}" style="border: 1px solid black" #{student["tests"].find {|st| st["test_id"] == t["test_id"]}["mark"]}
+            - else
+              td rowspan="#{student["problem_areas"].count}" style="border: 1px solid black" -
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["forward"]}
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["backward"]}
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["semantics"]}
+          td style="border: 1px solid black" rowspan="#{student["problem_areas"].count}" #{student["frames"]}
+        - student["problem_areas"].drop(1).each do |p|
+          tr
+            td style="border: 1px solid black" #{p["text"]}
+            td style="border: 1px solid black" #{p["mark"]}
+      - else 
+        tr
+          td style="border: 1px solid black" #{student["fio"]}
+          td style="border: 1px solid black" #{student["group"]}
+          td style="border: 1px solid black" -
+          td style="border: 1px solid black" -
+          - $all_tests.each do |t|
+            - if student["tests"].find {|st| st["test_id"] == t["test_id"]} != nil
+              td style="border: 1px solid black" #{student["tests"].find {|st| st["test_id"] == t["test_id"]} ["mark"]}
+            - else
+              td style="border: 1px solid black" -
+          td style="border: 1px solid black" #{student["forward"]}
+          td style="border: 1px solid black" #{student["backward"]}
+          td style="border: 1px solid black" #{student["semantics"]}
+          td style="border: 1px solid black" #{student["frames"]}
+        

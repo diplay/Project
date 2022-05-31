@@ -58,4 +58,5 @@ class KaResultsController < ApplicationController
     groups_ids = Student.where(:id => students_ids).distinct.pluck(:group_id)
     @groups = Group.find(groups_ids)
   end
+  
 end

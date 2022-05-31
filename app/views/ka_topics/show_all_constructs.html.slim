@@ -8,9 +8,11 @@ table
     - Construct.all.each do |c|
       th = c.name
   tbody
-    - @topics.each do |t|
-      tr
-        td.id = t.id
-        td.text = t.text
-        - t.topic_constructs.each do |c|
-          td = c.mark
+    tr
+      td.id = @root.id
+      td.text = @root.text
+      - Construct.all.each do |c|
+        - if @root.topic_constructs.where(construct_id: c.id).empty?
+          td = '-'
+        - else 
+          td = @root.topic_constructs.where(construct_id: c.id)[0].mark

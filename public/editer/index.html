@@ -1,98 +1,107 @@
-
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link href="../editer/css/jgrowl.css" rel="stylesheet" />
-		<link href="../editer/css/main.css" rel="stylesheet" />
-		<title>Редактирование модели</title>
-		<script src="../editer/js/jquery.js"></script>
-		<script src="../editer/js/jgrowl.js"></script>
-		<script src="../editer/js/raphael-min.js"></script>
-                <script src="../editer/functions.js"></script>
-		<script src="../editer/generateKB.js"></script>
-                <script src="../editer/draw.js"></script>
-                <script src="../editer/solver.js"></script>
-                
-		<script type="text/javascript" src="../editer/js/jquery-ui-1.10.3.custom.js"></script>
-		
-	</head>
-	<body style="padding:0px; margin:0px;">
-		<div id="select_div"></div>
-		<br />
-		<center>
 
-			<div id="select_div_msg">
-				<div id="select_div_title">
-					Редактирование модели
-				</div>
-				<table border="0" width="100%">
-					<tr>
-						<td>
-                                                    <div class="scroll" align="left">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link href="../editer/css/jgrowl.css" rel="stylesheet" />
+	<link href="../editer/css/main.css" rel="stylesheet" />
+	<title>Редактирование модели</title>
+	<script src="../editer/js/jquery.js"></script>
+	<script src="../editer/js/jgrowl.js"></script>
+	<script src="../editer/js/raphael-min.js"></script>
+	<script src="../editer/functions.js"></script>
+	<script src="../editer/generateKB.js"></script>
+	<script src="../editer/draw.js"></script>
+	<script src="../editer/solver.js"></script>
+
+	<script type="text/javascript" src="../editer/js/jquery-ui-1.10.3.custom.js"></script>
+
+</head>
+
+<body style="padding:0px; margin:0px;">
+	<div id="select_div"></div>
+	<br />
+	<center>
+
+		<div id="select_div_msg">
+			<div id="select_div_title">
+				Редактирование модели
+			</div>
+			<table border="0" width="100%">
+				<tr>
+					<td>
+						<div class="scroll" align="left">
 							<div id="level_select"></div>
-                                                    </div>
-						</td>
-						<td>
-                                                    <div class="scroll" align="left" style="width:330px;">
+						</div>
+					</td>
+					<td>
+						<div class="scroll" align="left" style="width:330px;">
 							<div id="fact_names"></div>
-                                                        
-                                                    </div>
-						</td>
-					</tr>
-					
-				</table>
 
-				<div align="center" id="button_div">
-                                    <input type="button" class="button_generate" style="margin:10px;" value="Отмена" onClick="functions.hideWin();" />
-				
-					<input type="button" class="button_generate" style="margin:10px;" value="Построить дерево заново" onClick="functions.checkRedrawTree();" />
-                                        </div>
+						</div>
+					</td>
+				</tr>
 
+			</table>
+
+			<div align="center" id="button_div">
+				<input type="button" class="button_generate" style="margin:10px;" value="Отмена"
+					onClick="functions.hideWin();" />
+
+				<input type="button" class="button_generate" style="margin:10px;" value="Построить дерево заново"
+					onClick="functions.checkRedrawTree();" />
 			</div>
-			<div id="holder">
-				
-			</div>
-                    <div align="center" id="step_second" style="display:none;">
-			
-			<input type="button" value="Редактирование БЗ" class="button_generate" id="end_btn" onclick="functions.createNewFact();"  />
-			<input type="button" value="Сохранить БЗ" class="button_generate" id="end_btn" onclick="functions.saveModelFromEditJSON();"  />
-                        <input type="button" value="Правила на ЕЯ" class="button_generate" id="end_btn" onclick="functions.JSONtoStringFile();"  />
-                    
-                    </div>
-                    <div id="trace">
-				
-			</div>
-		
+
+		</div>
+		<div id="holder">
+
+		</div>
+		<div align="center" id="step_second" style="display:none;">
+
+			<input type="button" value="Редактирование БЗ" class="button_generate" id="end_btn"
+				onclick="functions.createNewFact();" />
+			<input type="button" value="Сохранить БЗ" class="button_generate" id="end_btn"
+				onclick="functions.saveModelFromEditJSON();" />
+			<input type="button" value="Правила на ЕЯ" class="button_generate" id="end_btn"
+				onclick="functions.JSONtoStringFile();" />
+
+		</div>
+		<div id="trace">
+
+		</div>
+
 		<div style="padding:10px;" id="first_step">
 			<hr />
 			<br />
-			<div id="edit_bz" style="padding:10px; display:none;" align="left">
+			<div id="edit_bz" style="padding:10px;" align="left">
 				<h2>Построение базы знаний</h2>
 				<center>
 					<textarea id="baza_text" style="display:none;"></textarea>
 					<br />
 					<br />
 					<table width="70%">
-                                            <tr>
-                                                <td colspan="2" align="left"><b>Построение модели из JSON файла:</b>
-                                                            <input type="text" value="" id="modelJSON" class="JSONfile" placeholder="Вставьте сюда содержимое JSON файла, если вы уже строили модели и сохраняли БЗ" />
-                                                            <br /><br/>
+						<tr>
+							<td colspan="2" align="left"><b>Построение модели из JSON файла:</b>
+								<input type="text" value="" id="modelJSON" class="JSONfile"
+									placeholder="Вставьте сюда содержимое JSON файла, если вы уже строили модели и сохраняли БЗ" />
+								<br /><br />
 							</td>
-							
+
 
 						</tr>
 						<tr>
 							<td width="50%;" align="left">
-                                                            <b>Генерация случайной модели, с возможностью редактирования фактов:</b><br /><br />
-                                                            Предполагаемая глубина вывода:
-							<select id="level_style">
-								<option>2</option><option>3</option><option>4</option>
-							</select>
-							
+								<b>Генерация случайной модели, с возможностью редактирования фактов:</b><br /><br />
+								Предполагаемая глубина вывода:
+								<select id="level_style">
+									<option>4</option>
+									<option>5</option>
+								</select>
+
 							</td>
 							<td align="right">
-							
-                                                        <input type="button" class="button_generate" id="button_edit_save" value="Создать модель" onclick="functions.solveAction();" />
+
+								<input type="button" class="button_generate" id="button_edit_save"
+									value="Создать модель" onclick="functions.solveAction();" />
 							</td>
 
 						</tr>
@@ -101,26 +110,33 @@
 			</div>
 		</div>
 		<br />
-		
-                
+
+
 		<center>
-                    <div id="CONSOLE" style="display:none;">
-                        <h3>Консоль ошибок</h3>
-                    <textarea id="consoleText" style="padding:10px;display:block; width:90%; height:300px; border:1px solid red; border-radius:2px;"></textarea>
-                 </div><div id="ruleOnRussia" style="display:none;">
-                    
-                    <textarea id="ruleOnRussia_text"></textarea>
-                 </div>
-                    <div id="ruleOnRussia" style="display:none;">
-                    
-                    <textarea id="ruleOnRussia_text"></textarea>
-                 </div>
+			<div id="JSONResult">
+				<h3>Построенные правила в формате JSON</h3>
+				<textarea></textarea>
+			</div>
+			<div id="CONSOLE" style="display:none;">
+				<h3>Консоль ошибок</h3>
+				<textarea id="consoleText"
+					style="padding:10px;display:block; width:90%; height:300px; border:1px solid red; border-radius:2px;"></textarea>
+			</div>
+			<div id="ruleOnRussia" style="display:none;">
+
+				<textarea id="ruleOnRussia_text"></textarea>
+			</div>
+			<div id="ruleOnRussia" style="display:none;">
+
+				<textarea id="ruleOnRussia_text"></textarea>
+			</div>
 			<span class="version"> Версия: 4.1.1</span>
 		</center>
 		<script>
-			
-			functions.solveAction(true);
+			if (window.location.hash.includes('JSONfile=true')){
+				functions.solveAction(true);
+			}
 		</script>
-	</body>
-</html>
+</body>
 
+</html>

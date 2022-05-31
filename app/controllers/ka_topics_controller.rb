@@ -14,8 +14,9 @@ class KaTopicsController < ApplicationController
 
     ext.generate_state = lambda { |mode_id, week_id, schedule, state|
       atom = StateFacts.create(
-          task_name: "onthology-development-step",
-          state: 1)
+        task_name: "onthology-development-step",
+        state: 1,
+      )
       state.atoms.push << atom
     }
 
@@ -24,8 +25,8 @@ class KaTopicsController < ApplicationController
     }
 
     ext.task_exec_path = lambda { |pddl_act, leaf_id|
-      if((pddl_act == "execute-development-step") && (leaf_id == "onthology-development-step"))
-        return {"controller" => "ka_topics", "params" => {}}
+      if ((pddl_act == "execute-development-step") && (leaf_id == "onthology-development-step"))
+        return { "controller" => "ka_topics", "params" => {} }
       else
         return {}
       end
@@ -57,19 +58,35 @@ class KaTopicsController < ApplicationController
   def index
   end
 
+  def delete_utz_connection
+    utz_data = params[:utz_data]
+    test_utz_topic_id = utz_data.split(",")[0].to_i
+    type = utz_data.split(",")[1].to_i
+
+    case type
+    when 1
+      TestUtzTopic.find(test_utz_topic_id).delete()
+    # when 2 для других типов утз доделать
+    end
+
+    redirect_to :back
+  end
+
+
   def edit
     @topic = KaTopic.find(params[:id])
-    @topics_utz = [@topic]
-    topic = @topic.clone
-    until topic.parent_id.nil?
-      topic = KaTopic.find(topic.parent_id).clone
+    
+    @topic_utz_set = []
+
+    TestUtzTopic.where(ka_topic: @topic).each do |topic_utz|
+      @topic_utz_set.push({type: 1, data: topic_utz})
     end
-    unless(@topic.id == topic.id)
-      @topics_utz << topic
-    end
+
+    # такие же циклы нужны для остальных типов утз
+
     @competences = Competence.all
-    if (session[:planning_task_id]!=nil)
-    @task = PlanningTask.find(session[:planning_task_id])
+    if (session[:planning_task_id] != nil)
+      @task = PlanningTask.find(session[:planning_task_id])
     end
     @constructs = Construct.all
     @components = Component.all
@@ -86,19 +103,29 @@ class KaTopicsController < ApplicationController
   end
 
   def edit_utz
-    type = params[:ka_topic_id].split(',')[0].to_i
-    ka_topic_id = params[:ka_topic_id].split(',')[1].to_i
+    type = params[:utz_data].split(",")[0].to_i
+    ka_topic_id = params[:id]
+    topic = KaTopic.find(ka_topic_id)
+    utz_id = params[:utz_data].split(",")[1].to_i
+    weight = params[:weight]
     case type
-      when 1
-        TestUtzQuestion.find(ka_topic_id).update(ka_topic_id: params[:id])
-      when 2
-        MatchingUtz.find(ka_topic_id).update(ka_topic_id: params[:id])
-      when 3
-        FillingUtz.find(ka_topic_id).update(ka_topic_id: params[:id])
-      when 4
-        TextCorrectionUtz.find(ka_topic_id).update(ka_topic_id: params[:id])
-      when 5
-        ImagesSortUtz.find(ka_topic_id).update(ka_topic_id: params[:id])
+    when 1
+      utz = TestUtzQuestion.find(utz_id)
+      if TestUtzTopic.where(ka_topic: topic, test_utz_question: utz).empty?
+        TestUtzTopic.create(ka_topic: topic, test_utz_question: utz, weight: weight)
+      else
+        c = TestUtzTopic.find_by(ka_topic: topic, test_utz_question: utz)
+        c.weight = weight
+        c.save()
+      end
+      # when 2
+      #   MatchingUtz.find(utz_id).update(ka_topic_id: params[:id])
+      # when 3
+      #   FillingUtz.find(utz_id).update(ka_topic_id: params[:id])
+      # when 4
+      #   TextCorrectionUtz.find(utz_id).update(ka_topic_id: params[:id])
+      # when 5
+      #   ImagesSortUtz.find(utz_id).update(ka_topic_id: params[:id])
     end
 
     redirect_to :back
@@ -127,24 +154,31 @@ class KaTopicsController < ApplicationController
     redirect_to "/"
   end
 
-	def execute_amrr
-	  root = KaTopic.find(params[:root_id])
-	  topics = root.get_tree
-	  constructs = root.constructs
-	  @output = []
-	  rel_type_mapping = ["Сильная", "Средняя", "Слабая"]
+  def execute_amrr
+    root = KaTopic.find(params[:root_id])
 
-	  ActiveRecord::Base.transaction do
-	    for i in 0..(topics.count - 2)
-	      for j in (i+1)..(topics.count - 1)
-		relation = TopicRelation.calculate_relation(topics[i], topics[j], constructs)
-		relation.save
-		@output.push({topic: topics[i].text, related_topic: topics[j].text, relation_type: rel_type_mapping[relation.rel_type]})
-	      end
-	    end
-	  end
-	end
+    TopicRelation.delete_all(:ka_topic_id => params[:root_id])
+    TopicRelation.delete_all(:related_topic_id => params[:root_id])
 
+    global_root = root
+    while !global_root.parent.nil?
+      global_root = global_root.parent
+    end
+    topics = global_root.get_tree
+    constructs = root.constructs
+    @output = []
+    rel_type_mapping = ["Сильная", "Средняя", "Слабая"]
+
+    ActiveRecord::Base.transaction do
+      for i in 0..(topics.count - 1)
+        relation = TopicRelation.calculate_relation(root, topics[i], constructs)
+        if !relation.nil?
+          relation.save
+          @output.push({ topic: root.text, related_topic: topics[i].text, relation_type: rel_type_mapping[relation.rel_type] })
+        end
+      end
+    end
+  end
 
   def show_topics_with_questions
     @root = KaTopic.find(params[:root_id])
@@ -162,23 +196,28 @@ class KaTopicsController < ApplicationController
     @topics = @root.get_tree
   end
 
+  def show_general_constructs
+    print "hello world"
+  end
+
   private
-    def load_quizzes
-      @quizzes = []
-      TestUtzQuestion.all.each do |q|
-        @quizzes.push( { type: 1, data: q,  })
-      end
-      MatchingUtz.all.each do |q|
-        @quizzes.push( { type: 2, data: q })
-      end
-      FillingUtz.all.each do |q|
-        @quizzes.push( { type: 3, data: q })
-      end
-      TextCorrectionUtz.all.each do |q|
-        @quizzes.push( { type: 4, data: q })
-      end
-      ImagesSortUtz.all.each do |q|
-        @quizzes.push( { type: 5, data: q })
-      end
+
+  def load_quizzes
+    @quizzes = []
+    TestUtzQuestion.all.each do |q|
+      @quizzes.push({ type: 1, data: q })
     end
+    MatchingUtz.all.each do |q|
+      @quizzes.push({ type: 2, data: q })
+    end
+    FillingUtz.all.each do |q|
+      @quizzes.push({ type: 3, data: q })
+    end
+    TextCorrectionUtz.all.each do |q|
+      @quizzes.push({ type: 4, data: q })
+    end
+    ImagesSortUtz.all.each do |q|
+      @quizzes.push({ type: 5, data: q })
+    end
+  end
 end

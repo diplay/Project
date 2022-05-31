@@ -1,0 +1,82 @@
+- if $c_element.is_multiple
+  - if $c_element.size.nil?
+    h4 #{$c_element.name} #{$c_element.tag} = {#{$c_element.tag}i}, i=1..n
+  - else
+    h4 #{$c_element.name} #{$c_element.tag} = #{$c_element.tag}i, i=1..#{$c_element.size + 1}
+- else
+  h4 #{$c_element.name} #{$c_element.tag}
+
+form action="#{edit_component_element_path($c_element)}" method="post"
+  div 
+    div class="row"
+      div class="small-1 columns" 
+        label for="tag" Тег элемента
+      div class="small-10 columns"
+        input type="text" name="tag" value="#{$c_element.tag}" placeholder="Тег элемента"
+    div class="row"
+      div class="small-1 columns" 
+        label for="name" Имя элемента
+      div class="small-10 columns"
+        input type="text" name="name" value="#{$c_element.name}" placeholder="Имя элемента"
+    div class="row"
+      div class="small-1 columns" 
+        label for="desc" Описание элемента
+      div class="small-10 columns"
+        textarea name="desc" placeholder="Описание элемента" #{$c_element.desc}
+    
+    - if $c_element.is_multiple
+      div class="row"
+        div class="small-1 columns" 
+          label for="is_multiple" Множество
+        div class="small-10 columns"
+          input type="checkbox" checked="true" name="is_multiple"
+
+      div class="row"
+        div class="small-1 columns" 
+          label for="size" Размер множества
+        div class="small-10 columns"
+          input type="number" name="size" value="null" min="0" step="1" placeholder="Оставить пустым, если не известно или бесконечно"
+    - else
+      div class="row"
+        div class="small-1 columns" 
+          label for="is_multiple" Множество
+        div class="small-10 columns"
+          input type="checkbox" name="is_multiple"
+
+      div class="row"
+        div class="small-1 columns" 
+          label for="size" Размер множества
+        div class="small-10 columns"
+          input disabled="true" type="number" name="size" value="null" min="0" step="1" placeholder="Оставить пустым, если не известно или бесконечно"
+    
+    input type="submit" class="button"
+
+script 
+  |
+      document.getElementsByName('is_multiple')[0].onchange = function(e) {
+          document.getElementsByName('size')[0].disabled = !e.target.checked
+          if (!e.target.checked) document.getElementsByName('size')[0].value = null
+      }
+- if $c_element.is_multiple
+  h3 Детализирующее описание элемента #{$c_element.tag}i
+- else
+  h3 Детализирующее описание элемента #{$c_element.tag}
+div#description
+script src="/js/component.js"
+
+script 
+  |
+    const tree = JSON.parse("#{JSON.generate($c_element.get_json_tree)}".replace(/&quot;/g, '"')).children
+    tree.forEach((n) => document.getElementById("description").appendChild(buildNode(n)));
+
+br
+div
+  a class="button" href="#{component_element_new_child_path($c_element)}" Добавить элемент описания
+
+h3 Связи с узлами онтологии
+div
+  a class="button" href="#" Добавить связь
+
+h3 Значения элемента
+div
+  a class="button" href="#" Добавить значение

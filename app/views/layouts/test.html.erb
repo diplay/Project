@@ -25,6 +25,7 @@
 </head>
 <body>
 <div id="header">
+  <a href="/">На главную</a>
   <%= form_tag(logout_path, method: "POST") do %>
     <%= hidden_field_tag(:path, request.fullpath) %>
     <%= content_tag(:span, @user.student.fio) %>

@@ -1,0 +1,39 @@
+h2 Создание детализирующего элемента
+
+form action="#{component_element_create_child_path}" method="post"
+  div 
+    div class="row"
+      div class="small-1 columns" 
+        label for="tag" Тег элемента
+      div class="small-10 columns"
+        input type="text" name="tag" placeholder="Тег элемента"
+    div class="row"
+      div class="small-1 columns" 
+        label for="name" Имя элемента
+      div class="small-10 columns"
+        input type="text" name="name" placeholder="Имя элемента"
+    div class="row"
+      div class="small-1 columns" 
+        label for="desc" Описание элемента
+      div class="small-10 columns"
+        textarea name="desc" placeholder="Описание элемента"
+    div class="row"
+      div class="small-1 columns" 
+        label for="is_multiple" Множество
+      div class="small-10 columns"
+        input type="checkbox" name="is_multiple"
+
+    div class="row"
+      div class="small-1 columns" 
+        label for="size" Размер множества
+      div class="small-10 columns"
+        input disabled="true" type="number" name="size" value="null" min="0" step="1" placeholder="Оставить пустым, если не известно или бесконечно"
+    
+    input type="submit" class="button"
+
+script 
+    |
+        document.getElementsByName('is_multiple')[0].onchange = function(e) {
+            document.getElementsByName('size')[0].disabled = !e.target.checked
+            if (!e.target.checked) document.getElementsByName('size')[0].value = null
+        }

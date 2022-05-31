@@ -1,0 +1,37 @@
+h2 #{$component.name}
+hr
+h4 Название
+form action="#{rename_component_path($component)}" method="post"
+  div class="row"
+		div class="small-9 columns"
+		  input type="text" name="name" placeholder="Название" value="#{$component.name}"
+        div class="small-3 columns"
+          input type="submit" class="button postfix"
+
+h4 Описание компонента
+
+div#description
+
+script 
+  |
+    const tree = JSON.parse("#{JSON.generate($component.get_elements_tree)}".replace(/&quot;/g, '"'))
+
+script src="/js/component.js"
+
+script 
+  |
+    tree.forEach((n) => document.getElementById("description").appendChild(buildNode(n)));
+
+br
+div
+  a class="button" href="#{new_component_component_element_path($component)}" Добавить элемент описания
+
+
+h3 Дополнительное описание
+
+form action="#{update_component_path($component)}" method="post"
+  div class="row"
+		div class="small-9 columns"
+		  textarea cols="30" rows="10"  type="text" name="additional" placeholder="Дополнительное описание" #{$component.additional}
+        div class="small-3 columns"
+          input type="submit" class="button postfix"

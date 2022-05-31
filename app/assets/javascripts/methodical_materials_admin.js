@@ -1,5 +1,5 @@
 //= require jquery_ujs
-//= require ckeditor/init
+
 
 $(document).on('click', '.inline-content', function(evt) {
     $div = $(this);

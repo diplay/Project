@@ -6,8 +6,8 @@
   <!--TODO: Что это?-->
   <meta name="generator" content="Bootply" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <%= stylesheet_link_tag    "admin_tools", media: "all", "data-turbolinks-track" => true %>
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag "admin_tools", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= yield(:head) %>
 
@@ -50,82 +50,100 @@
 <br>
 
 <table class="table table-hover" style="border: 1px;">
-<caption ><b>Главы ГТ-учебника</b></caption>
-
-<% $probrecomendate.each do |rec| %>
- <tr >
-   <td><%= rec["text"] %></td>
-   <td><%= rec["date"] %></td>
-   <td><%= link_to "Удалить", outcomes_delrecomendation_path(rec["s_id"], rec["id"]) %></td>
- </tr>    
+  <caption ><b>Главы ГТ-учебника</b></caption>
+  <% $probrecomendate.each do |rec| %>
+    <tr >
+      <td><%= rec["text"] %></td>
+      <td>
+        <%= form_tag(outcomes_create_rec_path(@student), method: "post") do %>
+          <input type="hidden" name="type" value="ht">
+          <input type="hidden" name="text" value="<%= rec["text"] %>">
+          <input type="submit" value="Назначить"/>
+        <% end %>
+      </td>
+    </tr>    
   <% end %>
 </table>
 
 <table class="table table-hover" style="border: 1px;">
 <caption ><b>Учебно-тренировочные задания</b></caption>
-
-<% $utzrecomendate.each do |rec| 
-%>
- <tr >
-   <td><%= link_to rec["text"], test_utz_question_path(rec["rec_id"].to_i) %></td>
-   <td><%= rec["date"] %></td>
-   <td><%= link_to "Удалить", outcomes_delrecomendation_path(rec["s_id"], rec["id"]) %></td>
- </tr>    
+<% if $utzrecomendate.empty? %>
+    <tr >
+      <td> Рекомендаций нет </td>
+    </tr> 
+  <% else %>
+    <% $utzrecomendate.each do |rec| %>
+      <tr>
+        <td><%= link_to rec["text"], test_utz_question_path(rec["rec_id"].to_i) %></td>
+        <td>
+          <%= form_tag(outcomes_create_rec_path(@student), method: "post") do %>
+            <input type="hidden" name="type" value="ett">
+            <input type="hidden" name="text" value="<%= rec["text"] %>">
+            <input type="hidden" name="ett_type" value="<%= rec["ett_type"] %>">
+            <input type="hidden" name="ett_id" value="<%= rec["ett_id"] %>">
+            <input type="submit" value="Назначить"/>
+          <% end %>
+        </td>
+      </tr>    
+    <% end %>
   <% end %>
 </table>
 
 <table class="table table-hover" style="border: 1px;">
-<caption ><b>Главы учебника, рекомендованные к прочтению</b></caption>
-
-<% if $semrecomendate.nil? %>
-<tr >
-   <td> Рекомендаций нет </td>
-</tr> 
-<% else %>
-<% $semrecomendate.each do |rec| %>
- <tr >
-   <td><%= rec["text"] %></td>
-   <td><%= rec["date"] %></td>
-   <td><%= link_to "Удалить", outcomes_delrecomendation_path(rec["s_id"], rec["id"]) %></td>
- </tr>    
+  <caption><b>Компоненты</b></caption>
+  <% if $cmp_recomendations.empty? %>
+    <tr >
+      <td> Рекомендаций нет </td>
+    </tr> 
+  <% else %>
+    <% $cmp_recomendations.each do |rec| %>
+      <tr>
+        <td>
+          <%= link_to rec[:text], rec[:additional]["link"] %>
+        </td>
+        <td>
+          <%= form_tag(outcomes_create_rec_path(@student), method: "post") do %>
+            <input type="hidden" name="type" value="cmp">
+            <input type="hidden" name="text" value="<%= rec[:text] %>">
+            <input type="hidden" name="link" value="<%= rec[:additional]["link"] %>">
+            <input type="submit" value="Назначить"/>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
   <% end %>
-<% end %>
 </table>
-
+<div style="margin-top: 50px; border: 3px solid silver"></div>
 <table class="table table-hover" style="border: 1px;">
-
-<% if $frmrecomendate.nil? %>
-<tr >
-   <td> Рекомендаций нет </td>
-</tr> 
-<% else %>
-<% $frmrecomendate.each do |rec| %>
- <tr >
-   <td><%= rec["text"] %></td>
-   <td><%= rec["date"] %></td>
-   <td><%= link_to "Удалить", outcomes_delrecomendation_path(rec["s_id"], rec["id"]) %></td>
- </tr>    
+  <caption><b>Текущий план</b></caption>
+  <% if $plane.empty? %>
+    <tr >
+      <td> Рекомендаций нет </td>
+    </tr> 
+  <% else %>
+    <% $plane.each do |rec| %>
+      <tr>
+        <td style="padding: 10px">
+          <% if rec["type"] == "ht" %>
+            Глава ГТ-учебника
+          <% elsif rec["type"] == "ett" %>
+            УТЗ
+          <% elsif rec["type"] == "cmp" %>
+            Компонент
+          <% end %>
+        </td>
+        <td style="padding: 10px">
+          <%= rec["data"]["text"] %>
+        </td>
+        <td style="padding: 10px">
+           <%= form_tag(outcomes_delrecomendation_path(rec["id"]), method: "get") do %>
+            <input type="submit" value="Удалить">
+           <% end %>
+        </td>
+    <% end %>
   <% end %>
-<% end %>
 </table>
 
-<div class="block1">
-<div class="block1">
-<%= form_tag(outcomes_changedate_path , method: "POST") do %>
-<input type="text" name="date" value="dd-mm-yy" onfocus="this.select();_Calendar.lcs(this)"
-    onclick="event.cancelBubble=true;this.select();_Calendar.lcs(this)">
-<%= submit_tag("Отложить") %>
-<% end %>
-</div>
-<div class="block1">
-<%= form_tag(outcomes_assign_path , method: "POST") do %>
-<%= submit_tag("Назначить") %>
-<% end %>
-</div>
-<div class="block1">
-<%= form_tag(outcomes_cancel_path , method: "POST") do %>
-<%= submit_tag("Отменить") %>
-<% end %>
 </div>
 </div>
 

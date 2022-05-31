@@ -25,7 +25,9 @@ UIR::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = true
+  config.assets.debug = false
+  config.assets.unknown_assets_fallback = true
+  config.assets.check_precompiled_asset = false
 
   config.planning_bin = Rails.root.join('bin', 'fd').to_s
   config.planning_kb = Rails.root.join('planning_kb').to_s

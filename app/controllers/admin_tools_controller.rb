@@ -9,7 +9,7 @@ class AdminToolsController < ApplicationController
 
   def set_show_menu
     @showmenu = params[:showmenu] || true
-    @for_print = request.fullpath.clone
+    @for_print = request.fullpath.dup
     if @for_print.include?('?')
       @for_print << "&showmenu=false"
     else

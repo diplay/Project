@@ -1,0 +1,2 @@
+class ComponentElementTopic < ApplicationRecord
+end

@@ -30,6 +30,8 @@ class ConstructsController < ApplicationController
   def attach
     if TopicConstruct.where(ka_topic_id: params[:topic_id], construct_id: params[:construct_id]).empty? && !params[:construct_id].nil?
       TopicConstruct.create(ka_topic_id: params[:topic_id], construct_id: params[:construct_id], mark: params[:mark])
+    else
+      TopicConstruct.where(ka_topic_id: params[:topic_id], construct_id: params[:construct_id]).update_all(mark: params[:mark].to_i)
     end
 
     redirect_to :back

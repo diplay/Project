@@ -31,10 +31,10 @@
   </tr>
   </thead>
   <% @results.each do |test| %>
-
+      
       <tr >
         <td><%= test.student.fio %></td>
-        <td><%= link_to  test.rating, semanticanswer_path(test)%></td>
+        <td><%= test.rating %></td>
         <td>
 	<% if test.etalon!=nil %>
 		<%= link_to  test.etalon.name, semantictest_path(test.etalon)%></td>

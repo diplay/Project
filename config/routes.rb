@@ -30,11 +30,13 @@ UIR::Application.routes.draw do
 
   get  '/ka_topics',               to: 'ka_topics#index',     as: :ka_topics
   get  '/ka_topics/all',           to: 'ka_topics#all',       as: :all_ka_topics
+  get  '/ka_topics/general_constructs', to: 'ka_topics#show_general_constructs', as: :general_constructs
   get  '/ka_topics/:id',           to: 'ka_topics#show',      as: :ka_topic
   get  '/ka_topics/destroy/:id',   to: 'ka_topics#destroy',   as: :ka_topic_destroy
   post '/ka_topics/new',           to: 'ka_topics#new',       as: :new_ka_topic
   get  '/ka_topics/edit/:id',      to: 'ka_topics#edit',      as: :edit_ka_topic
   post '/ka_topics/edit_text/:id', to: 'ka_topics#edit_text', as: :edit_ka_topic_text
+  post '/ka_topics/delete_utz_connection',      to: 'ka_topics#delete_utz_connection', as: :delete_utz_topic_connection
 
   get  '/ka_questions',             to: 'ka_questions#index',   as: :ka_questions
   get  '/ka_questions/:id',         to: 'ka_questions#show',    as: :ka_question
@@ -77,17 +79,34 @@ UIR::Application.routes.draw do
   post 'constructs/attach' => 'constructs#attach'
   get 'constructs/:c_id/detach_from/:t_id' => 'constructs#detach', as: :construct_detach
 
-  resources :components
+  resources :component_services
+  resources :components do
+    resources :component_elements, only: [:new, :create]
+  end
+  resources :component_elements, only: [:edit, :destroy, :show, :new_child, :create_child] do
+    post :edit
+    post :create_child
+    get :new_child
+    get :destroy
+  end
   post 'components/attach' => 'components#attach'
   get 'components/:c_id/detach_from/:t_id' => 'components#detach', as: :component_detach
   get 'components/:c_id/detach_list_from/:t_id' => 'components#detach_list', as: :component_detach_list
+  get 'components/:c_id/edit_view' => 'components#edit_component_view', as: :component_edit_view
+  post 'components/:c_id/rename' => 'components#rename_component', as: :rename_component
+  post 'components/:c_id/update' => 'components#update_component', as: :update_component
+  post 'components/:c_id/create_service' => 'components#create_service', as: :create_component_service
+
+
+  # delete 'component_service/:id' => 'component_services#destroy'
+  # get 'component_service/:service_id'
+
 
   get 'ka_topics/:root_id/topics_with_questions' => 'ka_topics#show_topics_with_questions', as: :topics_with_questions
   get 'ka_topics/:root_id/all_competences' => 'ka_topics#show_all_competences', as: :all_competences
   get 'ka_topics/:root_id/all_constructs' => 'ka_topics#show_all_constructs', as: :all_constructs
   get 'ka_topics/:root_id/all_components' => 'ka_topics#show_all_components', as: :all_components
   get 'ka_topics/calc_rel/:root_id' => 'ka_topics#execute_amrr', as: :calc_rel
-
 
   post "frameadmin/createframe"
   post "frameadmin/updateframe"
@@ -105,6 +124,7 @@ UIR::Application.routes.draw do
 
   get "groups/:id/generate_pass", to: "groups#generate_pass", as: "pass_gen"
   get "groups/:id/generate_report", to: "groups#generate_report", as: "report_gen"
+  get "groups/:id/statements", to: "groups#statements", as: "group_statements"
   get  "semanticanswers/result"
 
 
@@ -119,7 +139,8 @@ UIR::Application.routes.draw do
   resources :framestudent
   resources :outcomes
   get 'outcomes/:g_id/recomendations/:s_id', to: 'outcomes#recomendations', as: :outcome_recomendations
-  get 'outcomes/:s_id/delrecomendation/:id', to: 'outcomes#delrecomendation', as: :outcomes_delrecomendation
+  get 'outcomes/recomendations/:id/delete', to: 'outcomes#delrecomendation', as: :outcomes_delrecomendation
+  post 'outcomes/:s_id/create_rec', to: 'outcomes#create_rec', as: :outcomes_create_rec
   #get 'test_utz_questions/:id', to: '#test_utz_questions', as :test_utz_questions
   post 'outcomes/changedate', to: 'outcomes#changedate', as: :outcomes_changedate
   post 'outcomes/assign', to: 'outcomes#assign', as: :outcomes_assign

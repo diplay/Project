@@ -1,5 +1,16 @@
 - if @error == 0
   h1 align="center" Ваша оценка
   h1 align="center" #{@assessment}
+  br
+  h5 План обучения:
+  table class="table"
+    tr
+      th Обучающее воздействие/компонент
+      th Прохождение
+    - @tutor_actions.each do |cmp|
+      tr
+        td #{cmp[:name]}
+        td 
+          a href="#{cmp[:link]}" target="_blank" Пройти
 - else
   h1 align="center" Вы пытаетесь пройти тест второй раз!

@@ -35,14 +35,17 @@
   <!-- Sidebar -->
   <div id="sidebar-wrapper">
     <ul class="sidebar-nav">
+    <li class="sidebar-brand">
+        <a href="/">На главную</a>
+      </li>
       <li class="sidebar-brand">
-        <%= link_to 'Компоненты', methodical_materials_path %>
+        <%= link_to "Компоненты", methodical_materials_path %>
       </li>
 
-      <% MethodicalMaterial.where.not(name: 'Components').each do |material| %>
+      <% MethodicalMaterial.where.not(name: "Components").each do |material| %>
         <li>
-          <%= link_to material.name, material, class: 'mm-name' %>
-          <% if @user.role == 'admin' %>
+          <%= link_to material.name, material, class: "mm-name" %>
+          <% if @user.role == "admin" %>
               <span data-id="<%= material.id %>" class="mm-edit-name mm-edit-name-off">Правка</span>
               <% if @page && @page.id == material.id %>
                   <%= link_to "&times;".html_safe, methodical_material_path(@page.id), :method => :delete, :class => "mm-delete" %>
@@ -53,11 +56,11 @@
         </li>
       <% end %>
 
-      <% if @user.role == 'admin' %>
+      <% if @user.role == "admin" %>
         <li>
           <div class="row">
             <div class="col-sm-offset-1 col-sm-9">
-              <%= link_to 'Добавить компонент', new_methodical_material_path, class: 'btn btn-default' %>
+              <%= link_to "Добавить компонент", new_methodical_material_path, class: "btn btn-default" %>
 
             </div>
           </div>
@@ -81,7 +84,7 @@
 <!-- Bootstrap Core JavaScript -->
 <%= javascript_include_tag "methodical_materials", "data-turbolinks-track" => true %>
 <%= javascript_include_tag "bootstrap.min", "data-turbolinks-track" => true %>
-<% if @user.role == 'admin' %>
+<% if @user.role == "admin" %>
     <%= javascript_include_tag "methodical_materials_admin", "data-turbolinks-track" => true %>
 <% end %>
 </body>

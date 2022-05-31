@@ -6,7 +6,7 @@ class CompetencesController < ApplicationController
   layout "ka_application"
 
   def index
-    if (session[:planning_task_id]!=nil)
+    if (session[:planning_task_id] != nil)
       @task = PlanningTask.find(session[:planning_task_id])
     end
   end
@@ -19,8 +19,9 @@ class CompetencesController < ApplicationController
 
     ext.generate_state = lambda { |mode_id, week_id, schedule, state|
       atom = StateFacts.create(
-          task_name: "competences-development-step",
-          state: 1)
+        task_name: "competences-development-step",
+        state: 1,
+      )
       state.atoms.push << atom
     }
 
@@ -29,8 +30,8 @@ class CompetencesController < ApplicationController
     }
 
     ext.task_exec_path = lambda { |pddl_act, leaf_id|
-      if((pddl_act == "execute-development-step") && (leaf_id == "competences-development-step"))
-        return {"controller" => "competences", "params" => {}}
+      if ((pddl_act == "execute-development-step") && (leaf_id == "competences-development-step"))
+        return { "controller" => "competences", "params" => {} }
       else
         return {}
       end
@@ -79,6 +80,8 @@ class CompetencesController < ApplicationController
   def attach
     if TopicCompetence.where(ka_topic_id: params[:topic_id], competence_id: params[:competence_id]).empty? && !params[:competence_id].nil?
       TopicCompetence.create(ka_topic_id: params[:topic_id], competence_id: params[:competence_id], weight: params[:weight])
+    else
+      TopicCompetence.where(ka_topic_id: params[:topic_id], competence_id: params[:competence_id]).update_all(weight: params[:weight])
     end
 
     redirect_to :back

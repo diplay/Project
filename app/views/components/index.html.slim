@@ -12,14 +12,16 @@ h1 Компоненты выявления умений
   table
     thead
       tr
-        th.id = "Идентификатор"
+        
         th.name = "Название"
+        th.actions = "Действия"
     tbody
       - Component.all.each do |c|
         tr
-          td.id = c.id
-		  td.name = c.name
+          td.name title="Редактировать"  = link_to c.name, component_edit_view_path(c)
           td
-           = link_to "Удалить", component_path(c), method: :delete
+            form action="#{component_path(c)}" method="POST"
+              input type="hidden" name="_method" value="DELETE"
+              button type="submit" class="alert button postfix" Удалить 
 - else
   p Пока не добавлено ни одного компонента

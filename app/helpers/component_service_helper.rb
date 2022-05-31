@@ -1,0 +1,2 @@
+module ComponentServiceHelper
+end

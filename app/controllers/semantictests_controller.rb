@@ -60,7 +60,6 @@ skip_before_filter :verify_authenticity_token
 		    students.push(group.students[i].id)
 		  end
 		end
-
 		@results = Semanticnetwork.where( :created_at => @date_from.to_date..@date_to.to_date.tomorrow).where(:student_id => students)
 	end
   

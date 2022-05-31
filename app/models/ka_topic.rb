@@ -20,6 +20,7 @@ class KaTopic < ActiveRecord::Base
   has_many :filling_utzs, dependent: :destroy
   has_many :text_correction_utzs, dependent: :destroy
   has_many :images_sort_utzs, dependent: :destroy
+  has_many :component_elements, through: :component_element_topic
 
   def get_tree
     topics = []

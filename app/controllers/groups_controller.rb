@@ -131,11 +131,98 @@ class GroupsController < AdminToolsController
 
     redirect_to "/"
   end
+
   def update
     group = Group.find(params[:id])
     group.number = params[:number]
     group.save
     redirect_to groups_path(group)
+  end
+
+  def statements
+    group = Group.find(params[:id])
+    $g = group
+    $students = []
+    $all_tests = []
+    Student.where(group: group).each do |student|
+      s = {
+        "fio" => student.fio,
+        "group" => group.number,
+        "id" => student.id
+      }
+      test_results = KaResult.where(user_id: student.user.id).order(created_at: :desc)
+      problem_areas = []
+      tests = []
+      areas_done = false
+      test_results.each do |res|
+        tests.prepend({
+          "test_id" => res.ka_test.id,
+          "text" => res.ka_test.text,
+          "mark" => res.assessment
+        })
+        if $all_tests.find {|t| t["test_id"] == res.ka_test.id} == nil
+          $all_tests.prepend({
+            "test_id" => res.ka_test.id,
+            "text" => res.ka_test.text,
+          })
+        end  
+        res.problem_areas.each do |p|
+          area = problem_areas.find {|pa| pa["topic_id"] == p.ka_topic.id}
+          if area == nil
+            if areas_done == false
+              problem_areas << {
+                "topic_id" => p.ka_topic.id,
+                "text" => p.ka_topic.text,
+                "mark" => p.mark.round(2)
+              }
+            end
+          else
+            if area["mark"] < p.mark
+              index = problem_areas.find_index(area)
+              problem_areas[index]["mark"] = p.mark
+            end
+          end
+        end
+        areas_done = true
+      end
+      s["tests"] = tests
+      s["problem_areas"] = problem_areas
+
+      # Поиск оценок по П/О выводу
+
+      f_results = Fbresult.where(fio: student.fio, group: student.group.number, fb: "Прямой").order(result: :desc)
+      if f_results.count != 0
+        s["forward"] = f_results[0].result
+      else
+        s["forward"] = "-"
+      end
+
+      b_results = Fbresult.where(fio: student.fio, group: student.group.number, fb: "Обратный").order(result: :desc)
+      if b_results.count != 0
+        s["backward"] = b_results[0].result
+      else
+        s["backward"] = "-"
+      end
+
+      # Поиск оценок по семантическим сетям и фреймам
+
+      semantic_results = Semanticnetwork.where(student_id: student.id).order(rating: :desc)
+      if semantic_results.count != 0
+        s["semantics"] = semantic_results[0].rating
+      else
+        s["semantics"] = "-"
+      end
+
+      frame_results = Studentframe.where(student_id: student.id).order(result: :desc)
+      if frame_results.count != 0
+        s["frames"] = frame_results[0].result.to_i
+      else
+        s["frames"] = "-"
+      end
+
+      $students << s
+    end
+    render :statements
   end
 
 end

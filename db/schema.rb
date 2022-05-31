@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170628191754) do
+ActiveRecord::Schema.define(version: 20220520134219) do
 
   create_table "bnfs", force: :cascade do |t|
     t.integer "component_id"
@@ -36,8 +36,44 @@ ActiveRecord::Schema.define(version: 20170628191754) do
     t.datetime "updated_at"
   end
 
+  create_table "component_element_topics", force: :cascade do |t|
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.integer  "component_elements_id"
+    t.integer  "ka_topics_id"
+    t.index ["component_elements_id"], name: "index_component_element_topics_on_component_elements_id"
+    t.index ["ka_topics_id"], name: "index_component_element_topics_on_ka_topics_id"
+  end
+
+  create_table "component_elements", force: :cascade do |t|
+    t.string   "tag"
+    t.text     "desc"
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.integer  "components_id"
+    t.integer  "component_elements_id"
+    t.boolean  "is_multiple",           default: false
+    t.integer  "size"
+    t.string   "name",                  default: ""
+    t.index ["component_elements_id"], name: "index_component_elements_on_component_elements_id"
+    t.index ["components_id"], name: "index_component_elements_on_components_id"
+  end
+
+  create_table "component_services", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "actor"
+    t.string   "path"
+    t.integer  "component_id"
+    t.boolean  "need_to_graduate"
+    t.integer  "priority"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["component_id"], name: "index_component_services_on_component_id"
+  end
+
   create_table "components", force: :cascade do |t|
     t.string "name"
+    t.text   "additional", default: "{}"
   end
 
   create_table "constructs", force: :cascade do |t|
@@ -47,7 +83,7 @@ ActiveRecord::Schema.define(version: 20170628191754) do
   end
 
   create_table "etalonframes", force: :cascade do |t|
-    t.string   "name",        limit: 255
+    t.string   "name",         limit: 255
     t.text     "dictionary"
     t.text     "studentcode"
     t.text     "framecode"
@@ -56,6 +92,8 @@ ActiveRecord::Schema.define(version: 20170628191754) do
     t.datetime "updated_at"
     t.text     "mistakes"
     t.text     "kbmistakes"
+    t.text     "stdecription"
+    t.boolean  "isuse"
   end
 
   create_table "etalons", force: :cascade do |t|
@@ -454,10 +492,11 @@ ActiveRecord::Schema.define(version: 20170628191754) do
     t.text     "rec_type"
     t.datetime "date"
     t.boolean  "done"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.string   "rec_status"
     t.text     "type_um"
+    t.text     "data",       default: "{}"
     t.index ["student_id"], name: "index_recomendations_on_student_id"
   end
 
@@ -569,6 +608,16 @@ ActiveRecord::Schema.define(version: 20170628191754) do
     t.index ["ka_topic_id"], name: "index_test_utz_questions_on_ka_topic_id"
   end
 
+  create_table "test_utz_topics", force: :cascade do |t|
+    t.integer  "weight"
+    t.integer  "test_utz_question_id"
+    t.integer  "ka_topic_id"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["ka_topic_id"], name: "index_test_utz_topics_on_ka_topic_id"
+    t.index ["test_utz_question_id"], name: "index_test_utz_topics_on_test_utz_question_id"
+  end
+
   create_table "text_correction_utzs", force: :cascade do |t|
     t.string   "name",                limit: 255
     t.text     "text_with_errors"
@@ -614,6 +663,7 @@ ActiveRecord::Schema.define(version: 20170628191754) do
   create_table "topic_components", force: :cascade do |t|
     t.integer "ka_topic_id"
     t.integer "component_id"
+    t.float   "weight",       default: 0.0, null: false
   end
 
   create_table "topic_constructs", id: false, force: :cascade do |t|

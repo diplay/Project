@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  weight: 1
+  test_utz_question: one
+  ka_topic: one
+
+two:
+  weight: 1
+  test_utz_question: two
+  ka_topic: two
